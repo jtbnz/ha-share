@@ -1,0 +1,43 @@
+
+
+
+#In groups.yaml file:
+family:
+  name: Family
+  entities:
+    - device_tracker.xxxxxx
+    - device_tracker.yyyyyy
+    - device_tracker.zzzzzz
+
+
+#check in configuration.yaml that this line is there:
+group: !include groups.yaml
+
+# this creates a group that has the state home or not_home. If at least one member is home the state will be home
+
+#in Developer Tools click on template and you can test template code:
+
+#paste this to see the state of the group:
+{{ states('group.family') }}
+
+
+#automation to turn all the lights off when everyone leaves
+alias: All lights off when everyone leaves
+description: When everyone leaves turn off all the lights left on
+trigger:
+  - platform: state
+    entity_id: group.family
+    to: not_home
+    from: home
+condition: []
+action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: all
+mode: single
+
+
+
+
+# https://www.home-assistant.io/integrations/group/
