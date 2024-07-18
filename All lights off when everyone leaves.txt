@@ -1,0 +1,18 @@
+
+
+
+
+alias: All lights off when everyone leaves
+description: When everyone leaves turn off all the lights left on
+trigger:
+  - platform: state
+    entity_id: group.family
+    to: not_home
+    from: home
+condition: []
+action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: all
+mode: single
