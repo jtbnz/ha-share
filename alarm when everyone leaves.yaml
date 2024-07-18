@@ -1,0 +1,17 @@
+alias: "Alarm Intrusion: suggest arming when everybody leaves"
+description: Whenever all members of the family leave, present the choice to arm the alarm
+trigger:
+  - platform: state
+    entity_id: group.family
+    to: not_home
+    from: home
+condition:
+  - condition: state
+    entity_id: alarm_control_panel.home_alarm
+    state: disarmed
+action:
+  - service: notify.mobile_app_jtb
+    data:
+      message: Everyone Left Arm Alarm?
+      title: Alarm Detect
+mode: single
