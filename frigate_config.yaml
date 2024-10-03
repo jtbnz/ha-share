@@ -1,0 +1,265 @@
+mqtt:
+  host: 192.168.68.XXX
+  user: mymqttuser
+  password: mymqttpassword
+  enabled: true
+
+go2rtc:
+  streams:
+    FrontDoor:
+      - rtsp://camuser:camuserpassword@192.168.68.xx0:554/live
+    Driveway8:
+      - rtsp://camuser:camuserpassword@192.168.68.xx1:554/live
+    Shed:
+      - rtsp://camuser:camuserpassword@192.168.68.xx2:554/live
+    Back:
+      - rtsp://camuser:camuserpassword@192.168.68.xx3:554/live
+
+# Optional: TLS configuration
+tls:
+  # Optional: Enable TLS for port 8971 (default: shown below)
+  enabled: false
+
+cameras:
+  FrontDoor:
+    ffmpeg:
+      inputs:
+
+        - path: rtsp://192.168.68.245:8554/FrontDoor
+          roles:
+            - detect
+
+        - path: rtsp://192.168.68.245:8554/FrontDoor
+          roles:
+            - record
+      hwaccel_args: preset-intel-qsv-h264
+    live:
+      stream_name: FrontDoor
+    detect:
+      width: 1280
+      height: 720
+      fps: 5
+    review:
+      alerts:
+        labels:
+          - dog
+          - cat
+          - person
+        required_zones:
+          - ZDoor
+      detections:
+        labels:
+          - dog
+          - person
+          - cat
+        required_zones:
+          - ZDoor
+    mqtt:
+      timestamp: false
+      bounding_box: false
+      crop: true
+      quality: 100
+      height: 1000
+
+    record:
+      enabled: true
+      retain:
+        days: 4
+        mode: motion
+      events:
+        pre_capture: 5
+        post_capture: 30
+        retain:
+          default: 5
+          mode: active_objects
+    snapshots:
+      required_zones:
+        - ZDoor
+    motion:  #added 21/12/22 to reduce green region detection coming into zones
+      mask: 
+        0.631,0.127,0.302,0.097,0.149,0.068,0.063,0.113,0,0.203,0,0.122,0,0,0.256,0,0.32,0,0.352,0,0.395,0,0.437,0,0.641,0,0.634,0.054
+    zones:
+      ZDoor:
+        coordinates: 
+          0,0.8,0,0.207,0,0.096,0.149,0.068,0.294,0.102,0.373,0.097,0.499,0.114,0.579,0.128,0.63,0.14,0.645,0,1,0,1,1,0.683,1,0.376,1,0,1
+        objects:
+          - person
+          - dog
+        inertia: 3
+        loitering_time: 0
+      ZDRoad:
+        coordinates: 817,0,807,87,484,61,412,47,0,60,0,0
+        objects:
+          - person
+
+  Driveway8:
+    ffmpeg:
+      inputs:
+        - path: rtsp://192.168.68.245:8554/Driveway8
+          roles:
+            - detect
+        - path: rtsp://192.168.68.245:8554/Driveway8
+          roles:
+            - record
+      hwaccel_args: preset-intel-qsv-h264
+    live:
+      stream_name: Driveway8
+    detect:
+      width: 1280
+      height: 720
+      fps: 5
+    mqtt:
+      timestamp: false
+      bounding_box: false
+      crop: true
+      quality: 100
+      height: 500
+    record:
+      enabled: true
+      retain:
+        days: 3
+        mode: motion
+      events:
+        pre_capture: 5
+        post_capture: 30
+        retain:
+          default: 4
+          mode: motion
+    snapshots:
+      required_zones:
+        - ZDriveway
+    motion:   #added 21/12/22 to reduce green region detection coming into zones
+      mask: 
+        0.709,0.178,0.233,0.354,0.151,0.387,0.088,0,0.113,0,0.126,0,0.145,0,0.184,0,0.205,0,0.217,0,0.266,0,0.547,0,0.711,0,0.71,0.044
+    zones:
+      ZDriveway:
+        coordinates: 1280,445,697,162,540,192,191,267,108,0,0,0,0,720,1280,720
+        objects:
+          - person
+          - dog
+          - car
+          - cat
+      ZRoad:
+        coordinates: 724,149,712,0,227,0,1280,0,1280,236,1227,401
+        objects:
+          - person
+        zone_0:
+      ZCarPark:
+        coordinates: 682,0,482,0,138,0,192,217,555,175,699,151
+        objects:
+          - person
+    review:
+      alerts:
+        required_zones:
+          - ZDriveway
+      detections:
+        required_zones:
+          - ZDriveway
+
+  Shed:
+    ffmpeg:
+      inputs:
+        - path: rtsp://192.168.68.245:8554/Shed
+          roles:
+            - detect
+        - path: rtsp://192.168.68.245:8554/Shed
+          roles:
+            - record
+      hwaccel_args: preset-intel-qsv-h264
+    live:
+      stream_name: Shed
+    detect:
+      width: 704
+      height: 576
+      fps: 5
+    mqtt:
+      timestamp: false
+      bounding_box: false
+      crop: true
+      quality: 100
+      height: 500
+    record:
+      enabled: true
+      retain:
+        days: 2
+        mode: motion
+      events:
+        pre_capture: 5
+        post_capture: 30
+        retain:
+          default: 5
+          mode: motion
+    motion:
+      mask: 0,0.244,0,0,0.34,0,0.321,0,0.188,0.085
+    objects:
+      track:
+        - person
+        - dog
+        - cat
+
+  Back:
+    ffmpeg:
+      inputs:
+        - path: rtsp://192.168.68.245:8554/Back
+          roles:
+            - detect
+        - path: rtsp://192.168.68.245:8554/Shed
+          roles:
+            - record
+      hwaccel_args: preset-intel-qsv-h264
+    live:
+      stream_name: Back
+    detect:
+      width: 704
+      height: 576
+      fps: 5
+    mqtt:
+      timestamp: false
+      bounding_box: false
+      crop: true
+      quality: 100
+      height: 500
+    record:
+      enabled: true
+      retain:
+        days: 5
+        mode: motion
+      events:
+        pre_capture: 5
+        post_capture: 30
+        retain:
+          default: 5
+          mode: motion
+    objects:
+      track:
+        - person
+        - dog
+        - cat
+
+snapshots:
+  retain:
+    default: 180
+  enabled: true
+
+birdseye:
+  enabled: true
+  mode: continuous
+
+objects:
+  track:
+    - person
+    - dog
+    - cat
+    - car
+
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+version: 0.14
+camera_groups:
+  driveway:
+    order: 1
+    icon: LuCar
+    cameras: Driveway8
